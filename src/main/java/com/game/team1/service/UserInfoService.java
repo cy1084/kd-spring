@@ -1,12 +1,12 @@
 package com.game.team1.service;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.game.team1.mapper.UserInfoMapper;
+import com.game.team1.util.JWTToken;
 import com.game.team1.vo.UserInfoVO;
 
 @Service
@@ -14,6 +14,8 @@ public class UserInfoService {
 
 	@Autowired
 	private UserInfoMapper uiMapper;
+	@Autowired
+	private JWTToken jwtToken;
 	
 	public List<UserInfoVO> getUserInfos(UserInfoVO user){
 		return uiMapper.selectUserInfos(user);
@@ -36,8 +38,15 @@ public class UserInfoService {
 	}
 	
 	public UserInfoVO login(UserInfoVO user){
-		return uiMapper.selectUserInfoById(user);
+		user=uiMapper.selectUserInfoById(user);
+		if(user != null) {
+			String token=jwtToken.getToken(user.getUiId());
+			user.setToken(token);
+			user.setUiPwd(null);
+		}
+		return user;
 	}
+	
 	
 	
 }
